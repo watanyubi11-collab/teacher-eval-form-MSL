@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard การประเมิน</title>
+  <script src="https://www.gstatic.com/charts/loader.js"></script>
+  <style>
+    body { font-family: "Prompt", sans-serif; background: #f9f6ff; padding: 20px; }
+    h1 { text-align: center; color: #6a1b9a; }
+    .chart { margin: 20px auto; max-width: 800px; }
+    h3 { margin-top: 30px; color: #333; }
+  </style>
+</head>
+<body>
+  <h1>📊 Dashboard การประเมินครู</h1>
+  <div id="subject_chart" class="chart"></div>
+  <div id="homeroom_chart" class="chart"></div>
+  <div id="comments"></div>
+
+<script>
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx-N88oojR3MOPhePTYkOXUx-Pd-JLYfzFfHkteXNrZNlz_8P9WBRWbyE9bMZAi-at_/execYOUR_WEB_APP_URL?mode=summary";
+
+fetch(WEB_APP_URL)
+.then(res => res.json())
+.then(data => {
+  // ครูวิชา
+  let subjectData = [['ครู+วิชา', 'ค่าเฉลี่ย']];
+  data.subjects.forEach(r => subjectData.push([r.teacher_subject, parseFloat(r.avg)]));
+
+  // ครูประจำชั้น
+  let homeroomData = [['ครูประจำชั้น', 'ค่าเฉลี่ย']];
+  data.homerooms.forEach(r => homeroomData.push([r.homeroom, parseFloat(r.avg)]));
+
+  // โหลด Google Chart
+  google.charts.load('current', {packages:['corechart']});
+  google.charts.setOnLoadCallback(() => {
+    var dt1 = google.visualization.arrayToDataTable(subjectData);
+    new google.visualization.ColumnChart(document.getElementById('subject_chart'))
+      .draw(dt1, {title: 'ค่าเฉลี่ยครูวิชา'});
+    
+    var dt2 = google.visualization.arrayToDataTable(homeroomData);
+    new google.visualization.ColumnChart(document.getElementById('homeroom_chart'))
+      .draw(dt2, {title: 'ค่าเฉลี่ยครูประจำชั้น'});
+  });
+
+  // แสดงคอมเมนต์
+  let commentsHTML = "<h2>💬 ข้อเสนอแนะ</h2>";
+  data.subjects.forEach(r => {
+    if (r.comments.length) {
+      commentsHTML += `<h3>${r.teacher_subject}</h3><ul>`;
+      r.comments.forEach(c => commentsHTML += `<li>${c}</li>`);
+      commentsHTML += "</ul>";
+    }
+  });
+  document.getElementById("comments").innerHTML = commentsHTML;
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>แบบประเมินคุณครู</title>
+  <style>
+    body { font-family: "Prompt", sans-serif; background: #fdf6f9; margin: 0; padding: 0; }
+    .container { max-width: 600px; margin: 30px auto; background: #fff;
+      border-radius: 20px; padding: 25px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+    h1 { text-align: center; color: #d63384; }
+    label { display: block; margin-top: 15px; font-weight: bold; }
+    select, input, textarea {
+      width: 100%; padding: 10px; margin-top: 5px; border-radius: 10px;
+      border: 1px solid #ccc; font-size: 14px;
+    }
+    button { margin-top: 20px; width: 100%; padding: 12px;
+      background: linear-gradient(90deg, #ff6fb5, #ffb6f0);
+      border: none; border-radius: 12px; font-size: 16px;
+      font-weight: bold; color: white; cursor: pointer; }
+    button:hover { background: linear-gradient(90deg, #ff4fa0, #ff9be0); }
+    .logo { display: block; margin: 0 auto 20px; max-height: 100px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <img src="LOGO.png" alt="School Logo" class="logo">
+    <h1>แบบประเมินคุณครู</h1>
+
+    <form id="evalForm">
+      <label>📌 รหัสนักเรียน</label>
+      <input type="text" id="student_id" name="student_id" required>
+
+      <label>🏫 เลือกชั้นเรียน</label>
+      <select id="grade" name="grade" required>
+        <option value="">-- เลือกชั้น --</option>
+        <option value="ป.1">ป.1</option>
+        <option value="ป.2">ป.2</option>
+        <option value="ป.3">ป.3</option>
+      </select>
+
+      <label>👩‍🏫 ครูประจำชั้น</label>
+      <select id="homeroom" name="homeroom" required>
+        <option value="">-- เลือกครูประจำชั้น --</option>
+        <option value="ครูเอ (ป.1)">ครูเอ (ป.1)</option>
+        <option value="ครูบี (ป.2)">ครูบี (ป.2)</option>
+        <option value="ครูซี (ป.3)">ครูซี (ป.3)</option>
+      </select>
+
+      <label>⭐ คะแนนครูประจำชั้น (1-10)</label>
+      <select id="homeroom_score" name="homeroom_score" required>
+        <option value="">-- เลือกคะแนน --</option>
+        <script>
+          for (let i=1; i<=10; i++) document.write(`<option value="${i}">${i}</option>`);
+        </script>
+      </select>
+
+      <label>📖 วิชา</label>
+      <select id="subject" name="subject" required>
+        <option value="">-- เลือกวิชา --</option>
+        <option value="คณิตศาสตร์">คณิตศาสตร์</option>
+        <option value="ภาษาไทย">ภาษาไทย</option>
+        <option value="วิทยาศาสตร์">วิทยาศาสตร์</option>
+      </select>
+
+      <label>👨‍🏫 ครูผู้สอน</label>
+      <select id="teacher" name="teacher" required>
+        <option value="">-- เลือกครูผู้สอน --</option>
+        <option value="ครูสมชาย">ครูสมชาย</option>
+        <option value="ครูสมหญิง">ครูสมหญิง</option>
+        <option value="ครูสมปอง">ครูสมปอง</option>
+      </select>
+
+      <label>⭐ คะแนนครูผู้สอน (1-10)</label>
+      <select id="score" name="score" required>
+        <option value="">-- เลือกคะแนน --</option>
+        <script>
+          for (let i=1; i<=10; i++) document.write(`<option value="${i}">${i}</option>`);
+        </script>
+      </select>
+
+      <label>✍️ ข้อเสนอแนะ/ข้อปรับปรุง</label>
+      <textarea id="comment" name="comment"></textarea>
+
+      <button type="submit">ส่งแบบประเมิน</button>
+    </form>
+    <p id="msg"></p>
+  </div>
+
+<script>
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx-N88oojR3MOPhePTYkOXUx-Pd-JLYfzFfHkteXNrZNlz_8P9WBRWbyE9bMZAi-at_/exec"; // แทนที่ด้วย URL จาก Apps Script Deploy
+
+document.getElementById("evalForm").addEventListener("submit", e => {
+  e.preventDefault();
+  const data = Object.fromEntries(new FormData(e.target).entries());
+
+  fetch(WEB_APP_URL, {
+    method: "POST",
+    body: JSON.stringify(data)
+  })
+  .then(res => res.json())
+  .then(res => {
+    document.getElementById("msg").innerText = res.status === "success"
+      ? "✅ ส่งข้อมูลเรียบร้อยแล้ว" : "❌ " + res.msg;
+    e.target.reset();
+  });
+});
+</script>
+</body>
+</html>
