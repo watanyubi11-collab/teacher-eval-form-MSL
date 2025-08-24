@@ -1,260 +1,311 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8">
-  <title>แบบประเมินคุณครู ชั้นประถมศึกษา</title>
+  <meta charset="UTF-8" />
+  <title>แบบประเมินคุณครู</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <style>
-    body { font-family: "Prompt", sans-serif; background: #fdf6f9; margin: 0; padding: 0; }
-    .container { max-width: 800px; margin: 30px auto; background: #fff;
-      border-radius: 20px; padding: 25px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-    h1 { text-align: center; color: #d63384; }
-    label { display: block; margin-top: 10px; font-weight: bold; }
-    select, input, textarea {
-      width: 100%; padding: 10px; margin-top: 5px; border-radius: 10px;
-      border: 1px solid #ccc; font-size: 14px;
+    :root{
+      --pink:#e91e63; --pink-soft:#fff0f6; --brand:#ff66a6; --brand2:#ffb6f0;
+      --text:#444; --card:#fff; --bg:#fff5fa; --border:#e9dbe3;
     }
-    button { margin-top: 20px; width: 100%; padding: 12px;
-      background: linear-gradient(90deg, #ff6fb5, #ffb6f0);
-      border: none; border-radius: 12px; font-size: 16px;
-      font-weight: bold; color: white; cursor: pointer; }
-    button:hover { background: linear-gradient(90deg, #ff4fa0, #ff9be0); }
-    .logo { display: block; margin: 0 auto 20px; max-height: 100px; }
+    *{box-sizing:border-box}
+    body{font-family:"Prompt",system-ui,-apple-system,Segoe UI,Roboto; background:var(--bg); margin:0}
+    .container{
+      max-width:780px; margin:24px auto; background:var(--card);
+      border-radius:22px; padding:22px; box-shadow:0 8px 20px rgba(0,0,0,.08);
+    }
+    h1{margin:0 0 10px; text-align:center; color:var(--pink)}
+    p.desc{text-align:center; color:#666; margin:0 0 18px}
+    label{display:block; margin-top:14px; color:var(--text); font-weight:600}
+    input,select,textarea{
+      width:100%; padding:12px 12px; border-radius:14px; border:1px solid var(--border);
+      font-size:15px; outline:none; background:#fff;
+    }
+    textarea{min-height:90px; resize:vertical}
+    .subjects{margin-top:18px}
+    .subject-box{
+      background:var(--pink-soft); border:1px solid var(--border);
+      border-radius:18px; padding:14px; margin-bottom:16px;
+      box-shadow:0 3px 10px rgba(0,0,0,.06);
+    }
+    .subject-title{display:flex; align-items:center; gap:8px; color:#ad1457; font-weight:700; margin-bottom:8px}
 
-    /* ---- Card ของแต่ละวิชา ---- */
-    .subject-card {
-      border: 2px solid #eee;
-      border-radius: 15px;
-      padding: 15px;
-      margin-top: 15px;
-      background: #fff9fc;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-      transition: all 0.3s;
+    /* cute checkbox */
+    .cute-check{display:inline-flex; align-items:center; gap:8px}
+    .cute-check input{display:none}
+    .checkmark{
+      width:22px; height:22px; border-radius:50%; border:2px solid #f06292;
+      background:#ffe4ec; display:inline-block; position:relative; cursor:pointer; transition:.2s;
     }
-    .subject-card.active {
-      border-color: #ff6fb5;
-      background: #fff0f8;
-      box-shadow: 0 4px 10px rgba(255,100,160,0.2);
+    .cute-check input:checked + .checkmark{
+      background:#f06292 url('https://cdn-icons-png.flaticon.com/512/833/833472.png') no-repeat center/14px;
+      transform:scale(1.08);
     }
 
-    /* ---- Toggle Checkbox ---- */
-    .toggle {
-      display: flex;
-      align-items: center;
-      cursor: pointer;
-      font-size: 16px;
-      font-weight: bold;
-      color: #444;
+    .row{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+    @media (max-width:640px){ .row{grid-template-columns:1fr} }
+
+    button{
+      margin-top:22px; width:100%; padding:14px; border:0; border-radius:16px;
+      background:linear-gradient(90deg,var(--brand),var(--brand2)); color:#fff; font-weight:800; font-size:16px;
+      box-shadow:0 6px 16px rgba(255,102,166,.35); cursor:pointer; transition:.2s;
     }
-    .toggle input {
-      display: none;
-    }
-    .slider {
-      position: relative;
-      width: 50px;
-      height: 26px;
-      background: #ddd;
-      border-radius: 30px;
-      margin-right: 10px;
-      transition: 0.3s;
-    }
-    .slider::before {
-      content: "";
-      position: absolute;
-      width: 22px;
-      height: 22px;
-      left: 2px;
-      top: 2px;
-      background: white;
-      border-radius: 50%;
-      transition: 0.3s;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    }
-    .toggle input:checked + .slider {
-      background: linear-gradient(90deg, #ff6fb5, #ff9be0);
-    }
-    .toggle input:checked + .slider::before {
-      transform: translateX(24px);
-    }
+    button:hover{transform:translateY(-1px)}
+    .small{font-size:12px; color:#777; margin-top:6px}
   </style>
 </head>
 <body>
   <div class="container">
-    <img src="LOGO.png" alt="School Logo" class="logo">
-    <h1>แบบประเมินคุณครู ชั้นประถม</h1>
+    <h1>📋 แบบประเมินคุณครู ประถมศึกษา</h1>
+    <p class="desc">รหัสนักเรียนส่งได้เพียงครั้งเดียว</p>
 
-    <form id="evalForm">
-      <label>📌 รหัสนักเรียน</label>
-      <input type="text" id="student_id" name="student_id" required>
+    <form id="evalForm" novalidate>
+      <label>📌 รหัสนักเรียน *</label>
+      <input type="text" id="student_id" required placeholder="เช่น 1001" />
 
-      <label>🏫 เลือกชั้นเรียน</label>
-      <select id="grade" name="grade" required>
+      <label>🏫 ชั้นเรียน *</label>
+      <select id="grade" required>
         <option value="">-- เลือกชั้น --</option>
-        <option value="ป.1">ป.1</option>
-        <option value="ป.2">ป.2</option>
-        <option value="ป.3">ป.3</option>
-        <option value="ป.4">ป.4</option>
-        <option value="ป.5">ป.5</option>
-        <option value="ป.6">ป.6</option>     
+        <option>ป.1</option><option>ป.2</option><option>ป.3</option>
+        <option>ป.4</option><option>ป.5</option><option>ป.6</option>
       </select>
 
-      <label>👩‍🏫 ครูประจำชั้น</label>
-      <select id="homeroom" name="homeroom" required>
+      <label>👩‍🏫 ครูประจำชั้น *</label>
+      <select id="homeroom" required>
         <option value="">-- เลือกครูประจำชั้น --</option>
-        <option value="ครูละออง">ครูละออง</option>
-        <option value="ครูยี่หวา">ครูยี่หวา</option>
-        <option value="ครูแจน">ครูแจน</option>
-        <option value="ครูเคน">ครูเคน</option>
-        <option value="ครูตูน">ครูตูน</option>
+        <option>ครูละอองดาว</option>
+        <option>ครูยี่หวา</option>
+        <option>ครูแจน</option>
+        <option>ครูเคน</option>
+        <option>ครูตูน</option>
       </select>
 
-      <label>⭐ คะแนนครูประจำชั้น (1-10)</label>
-      <select id="homeroom_score" name="homeroom_score" required>
+      <label>⭐ คะแนนครูประจำชั้น (1–10) *</label>
+      <select id="homeroom_score" required>
         <option value="">-- เลือกคะแนน --</option>
-        <script>
-          for (let i=1; i<=10; i++) document.write(`<option value="${i}">${i}</option>`);
-        </script>
+        <script>for(let i=1;i<=10;i++)document.write(`<option value="${i}">${i}</option>`)</script>
       </select>
 
-      <h3>📖 วิชาเรียน</h3>
+      <div class="subjects">
+        <h2 style="color:#c2185b">📖 ประเมินรายวิชา (เลือกตามวิชาที่เรียน)</h2>
 
-      <!-- ตัวอย่าง 1 วิชา -->
-      <div class="subject-card">
-        <label class="toggle">
-          <input type="checkbox" name="subject[คณิตศาสตร์][check]" onchange="toggleCard(this)">
-          <span class="slider"></span> คณิตศาสตร์
-        </label>
-        <div class="subject-details">
-          <label>ครูผู้สอน</label>
-          <select name="subject[คณิตศาสตร์][teacher]">
-            <option value="">-- เลือกครู --</option>
-            <option value="ครูแนท">ครูแนท</option>
-            <option value="ครูแจน">ครุแจน</option>
-            <option value="ครูก้อย">ครูก้อย</option>
-            <option value="ครูละออง">ครูละออง</option>
-            <option value="ครูตูน">ครูตูน</option>
-            <option value="ครูยี่หวา">ครูยี่หวา</option>
-          </select>
-          <label>คะแนน (1-10)</label>
-          <select name="subject[คณิตศาสตร์][score]">
-            <option value="">-- เลือกคะแนน --</option>
-            <script>
-              for (let i=1; i<=10; i++) document.write(`<option value="${i}">${i}</option>`);
-            </script>
-          </select>
+        <!-- วิชา: คณิตศาสตร์ -->
+        <div class="subject-box" data-subject="คณิตศาสตร์">
+          <div class="subject-title">
+            <label class="cute-check">
+              <input type="checkbox" class="subject-check">
+              <span class="checkmark"></span>
+            </label>
+            คณิตศาสตร์
+          </div>
+          <div class="row">
+            <div>
+              <label>ครูผู้สอน</label>
+              <select class="teacher">
+                <option value="">-- เลือกครู --</option>
+                <option>ครูแนท</option><option>ครูบีม</option><option>ครูก้อย</option>
+              </select>
+            </div>
+            <div>
+              <label>คะแนน (1–10)</label>
+              <select class="score">
+                <option value="">-- เลือกคะแนน --</option>
+                <script>for(let i=1;i<=10;i++)document.write(`<option>${i}</option>`)</script>
+              </select>
+            </div>
+          </div>
         </div>
-      </div>
 
-      <div class="subject-card">
-        <label class="toggle">
-          <input type="checkbox" name="subject[ภาษาไทย][check]" onchange="toggleCard(this)">
-          <span class="slider"></span> ภาษาไทย
-        </label>
-        <div class="subject-details">
-          <label>ครูผู้สอน</label>
-          <select name="subject[ภาษาไทย][teacher]">
-            <option value="">-- เลือกครู --</option>
-            <option value="ครูฝ้าย">ครูฝ้าย</option>
-            <option value="ครูละออง">ครูละออง</option>
-            <option value="ครูตูน">ครูตูน</option>
-            <option value="ครูยี่หวา">ครูยี่หวา</option>
-          </select>
-          <label>คะแนน (1-10)</label>
-          <select name="subject[ภาษาไทย][score]">
-            <option value="">-- เลือกคะแนน --</option>
-            <script>
-              for (let i=1; i<=10; i++) document.write(`<option value="${i}">${i}</option>`);
-            </script>
-          </select>
+        <!-- วิชา: ภาษาไทย -->
+        <div class="subject-box" data-subject="ภาษาไทย">
+          <div class="subject-title">
+            <label class="cute-check">
+              <input type="checkbox" class="subject-check">
+              <span class="checkmark"></span>
+            </label>
+            ภาษาไทย
+          </div>
+          <div class="row">
+            <div>
+              <label>ครูผู้สอน</label>
+              <select class="teacher">
+                <option value="">-- เลือกครู --</option>
+                <option>ครูฝ้าย</option><option>ครูแป้ง</option>
+              </select>
+            </div>
+            <div>
+              <label>คะแนน (1–10)</label>
+              <select class="score">
+                <option value="">-- เลือกคะแนน --</option>
+                <script>for(let i=1;i<=10;i++)document.write(`<option>${i}</option>`)</script>
+              </select>
+            </div>
+          </div>
         </div>
-      </div>
-            <div class="subject-card">
-        <label class="toggle">
-          <input type="checkbox" name="subject[คณิตศาสตร์][check]" onchange="toggleCard(this)">
-          <span class="slider"></span> ภาษาอังกฤษ
-        </label>
-        <div class="subject-details">
-          <label>ครูผู้สอน</label>
-          <select name="subject[ภาษาอังกฤษ][teacher]">
-            <option value="">-- เลือกครู --</option>
-            <option value="ครูแนท">ครูแนท</option>
-            <option value="ครูแจน">ครูแจน</option>
-            <option value="ครูฝ้าย">ครูฝ้าย</option>
-            <option value="ครูละออง">ครูละออง</option>
-            <option value="ครูออโต้">ครูออโต้</option>
-          </select>
-          <label>คะแนน (1-10)</label>
-          <select name="subject[ภาษาอังกฤษ][score]">
-            <option value="">-- เลือกคะแนน --</option>
-            <script>
-              for (let i=1; i<=10; i++) document.write(`<option value="${i}">${i}</option>`);
-            </script>
-          </select>
-        </div>
-      </div>
 
-            <div class="subject-card">
-        <label class="toggle">
-          <input type="checkbox" name="subject[คณิตศาสตร์][check]" onchange="toggleCard(this)">
-          <span class="slider"></span> สังคม
-        </label>
-        <div class="subject-details">
-          <label>ครูผู้สอน</label>
-          <select name="subject[สังคม][teacher]">
-            <option value="">-- เลือกครู --</option>
-            <option value="ครูบีม">ครูบีม</option>
-            <option value="ครูละออง">ครูละออง</option>
-          </select>
-          <label>คะแนน (1-10)</label>
-          <select name="subject[คณิตศาสตร์][score]">
-            <option value="">-- เลือกคะแนน --</option>
-            <script>
-              for (let i=1; i<=10; i++) document.write(`<option value="${i}">${i}</option>`);
-            </script>
-          </select>
+        <!-- วิชา: วิทยาศาสตร์ -->
+        <div class="subject-box" data-subject="วิทยาศาสตร์">
+          <div class="subject-title">
+            <label class="cute-check">
+              <input type="checkbox" class="subject-check">
+              <span class="checkmark"></span>
+            </label>
+            วิทยาศาสตร์
+          </div>
+          <div class="row">
+            <div>
+              <label>ครูผู้สอน</label>
+              <select class="teacher">
+                <option value="">-- เลือกครู --</option>
+                <option>ครูออโต้</option><option>ครูตูน</option>
+              </select>
+            </div>
+            <div>
+              <label>คะแนน (1–10)</label>
+              <select class="score">
+                <option value="">-- เลือกคะแนน --</option>
+                <script>for(let i=1;i<=10;i++)document.write(`<option>${i}</option>`)</script>
+              </select>
+            </div>
+          </div>
         </div>
-      </div>
 
-            <div class="subject-card">
-        <label class="toggle">
-          <input type="checkbox" name="subject[คณิตศาสตร์][check]" onchange="toggleCard(this)">
-          <span class="slider"></span> คณิตศาสตร์
-        </label>
-        <div class="subject-details">
-          <label>ครูผู้สอน</label>
-          <select name="subject[คณิตศาสตร์][teacher]">
-            <option value="">-- เลือกครู --</option>
-            <option value="ครูแนท">ครูแนท</option>
-            <option value="ครูบีม">ครูบีม</option>
-            <option value="ครูก้อย">ครูก้อย</option>
-          </select>
-          <label>คะแนน (1-10)</label>
-          <select name="subject[คณิตศาสตร์][score]">
-            <option value="">-- เลือกคะแนน --</option>
-            <script>
-              for (let i=1; i<=10; i++) document.write(`<option value="${i}">${i}</option>`);
-            </script>
-          </select>
+        <!-- วิชา: สังคม -->
+        <div class="subject-box" data-subject="สังคม">
+          <div class="subject-title">
+            <label class="cute-check">
+              <input type="checkbox" class="subject-check">
+              <span class="checkmark"></span>
+            </label>
+            สังคม
+          </div>
+          <div class="row">
+            <div>
+              <label>ครูผู้สอน</label>
+              <select class="teacher">
+                <option value="">-- เลือกครู --</option>
+                <option>ครูบีม</option><option>ครูละอองดาว</option>
+              </select>
+            </div>
+            <div>
+              <label>คะแนน (1–10)</label>
+              <select class="score">
+                <option value="">-- เลือกคะแนน --</option>
+                <script>for(let i=1;i<=10;i++)document.write(`<option>${i}</option>`)</script>
+              </select>
+            </div>
+          </div>
         </div>
+
+                <!-- วิชา: ภาษาอังกฤษ -->
+        <div class="subject-box" data-subject="ภาษาอังกฤษ ">
+          <div class="subject-title">
+            <label class="cute-check">
+              <input type="checkbox" class="subject-check">
+              <span class="checkmark"></span>
+            </label>
+            ภาษาอังกฤษ
+          </div>
+          <div class="row">
+            <div>
+              <label>ครูผู้สอน</label>
+              <select class="teacher">
+                <option value="">-- เลือกครู --</option>
+                <option>ครูแนท</option><option>ครูละอองดาว</option><option>ครูแจน</option><option>ครูเคน</option><option>ครูตูน</option>
+                <option>ครูยี่หวา</option><option>ครูฝ้าย</option><option>ครูออโต้</option>
+              </select>
+            </div>
+            <div>
+              <label>คะแนน (1–10)</label>
+              <select class="score">
+                <option value="">-- เลือกคะแนน --</option>
+                <script>for(let i=1;i<=10;i++)document.write(`<option>${i}</option>`)</script>
+              </select>
+            </div>
+          </div>
+        </div>
+
       </div>
-      <!-- เพิ่มวิชาอื่นๆ ได้เหมือนกัน -->
 
       <label>✍️ ข้อเสนอแนะ/ข้อปรับปรุง</label>
-      <textarea id="comment" name="comment"></textarea>
+      <textarea id="comment" placeholder="พิมพ์ข้อเสนอแนะ..."></textarea>
 
+      <div class="small">* จำเป็นต้องกรอก</div>
       <button type="submit">ส่งแบบประเมิน</button>
     </form>
-    <p id="msg"></p>
   </div>
 
-<script>
-function toggleCard(checkbox) {
-  const card = checkbox.closest(".subject-card");
-  if (checkbox.checked) {
-    card.classList.add("active");
-  } else {
-    card.classList.remove("active");
-  }
-}
-</script>
+  <script>
+    // 👉 ใส่ URL Web App ของคุณ
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyzXJVR5xaNmJLBURxrMin4A9CmTBtcEIpHY1qK6uayTVEc8Ki3rIRqox5ucVlUNjzy/exec";
+
+    document.getElementById("evalForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const student_id = document.getElementById("student_id").value.trim();
+      const grade = document.getElementById("grade").value.trim();
+      const homeroom = document.getElementById("homeroom").value.trim();
+      const homeroom_score = document.getElementById("homeroom_score").value.trim();
+      const comment = document.getElementById("comment").value.trim();
+
+      // ตรวจข้อมูลพื้นฐาน
+      if (!student_id || !grade || !homeroom || !homeroom_score) {
+        Swal.fire("กรอกข้อมูลไม่ครบ", "กรุณากรอกช่องที่มีเครื่องหมาย * ให้ครบ", "warning");
+        return;
+      }
+
+      // ดึงวิชาที่ติ๊ก พร้อมครูและคะแนน
+      const subjects = [];
+      document.querySelectorAll(".subject-box").forEach(box => {
+        const checked = box.querySelector(".subject-check").checked;
+        if (checked) {
+          const subject = box.getAttribute("data-subject");
+          const teacher = box.querySelector(".teacher").value.trim();
+          const score = box.querySelector(".score").value.trim();
+          if (!teacher || !score) {
+            subjects.push({ subject, teacher, score, _invalid:true });
+          } else {
+            subjects.push({ subject, teacher, score });
+          }
+        }
+      });
+
+      // อย่างน้อย 1 วิชา
+      if (subjects.length === 0) {
+        Swal.fire("กรุณาเลือกวิชา", "เลือกอย่างน้อย 1 วิชา และระบุครูกับคะแนน", "info");
+        return;
+      }
+      // ทุกวิชาที่เลือกต้องมีครูและคะแนน
+      if (subjects.some(s => s._invalid)) {
+        Swal.fire("ข้อมูลรายวิชาไม่ครบ", "กรุณาเลือกครูและคะแนนให้ครบทุกวิชาที่เลือก", "warning");
+        return;
+      }
+
+      // ส่งข้อมูล
+      const body = new URLSearchParams({
+        student_id, grade, homeroom, homeroom_score,
+        subjects: JSON.stringify(subjects),
+        comment
+      });
+
+      try {
+        const res = await fetch(WEB_APP_URL, { method: "POST", body });
+        const json = await res.json();
+
+        if (json.status === "success") {
+          await Swal.fire("สำเร็จ ✨", json.message || "ส่งแบบประเมินสำเร็จ", "success");
+          e.target.reset();
+          // ยกเลิกติ๊กทุกวิชา
+          document.querySelectorAll(".subject-check").forEach(cb => cb.checked = false);
+        } else {
+          Swal.fire("ไม่สามารถส่งได้", json.message || "โปรดลองใหม่ภายหลัง", "error");
+        }
+      } catch (err) {
+        Swal.fire("เชื่อมต่อไม่ได้", "ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้", "error");
+      }
+    });
+  </script>
 </body>
 </html>
