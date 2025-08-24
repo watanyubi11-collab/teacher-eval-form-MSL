@@ -323,7 +323,9 @@
       } catch (err) {
         Swal.fire("เชื่อมต่อไม่ได้", "ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้", "error");
       }
-       // 🚫 ป้องกัน F12, Ctrl+Shift+I, Ctrl+U
+    });
+    
+     // 🚫 ป้องกัน F12, Ctrl+Shift+I, Ctrl+U
     document.onkeydown = function(e) {
       if (e.keyCode == 123) { return false; } // F12
       if (e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) { return false; }
@@ -334,10 +336,10 @@
     document.addEventListener("contextmenu", function(e){
       e.preventDefault();
     }, false);
-    });
   </script>
 </body>
 </html>
+
 
 
 
