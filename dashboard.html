@@ -2,123 +2,58 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8">
-  <title>📊 Dashboard สรุปผลการประเมินครู</title>
-  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+  <title>Dashboard การประเมิน</title>
+  <script src="https://www.gstatic.com/charts/loader.js"></script>
   <style>
-    body {
-      font-family: "Prompt", sans-serif;
-      background: #fdfdfd;
-      padding: 20px;
-      color: #333;
-    }
-    h2 {
-      margin-top: 30px;
-      color: #444;
-    }
-    table {
-      border-collapse: collapse;
-      width: 100%;
-      margin-top: 10px;
-      background: white;
-      border-radius: 10px;
-      overflow: hidden;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    }
-    th, td {
-      border: 1px solid #eee;
-      padding: 10px;
-      text-align: center;
-    }
-    th {
-      background: #ffdfef;
-    }
-    #subject_chart, #homeroom_chart {
-      margin-top: 30px;
-    }
-    #comments {
-      margin-top: 30px;
-      background: #fff8f8;
-      padding: 15px;
-      border-radius: 12px;
-    }
+    body { font-family: "Prompt", sans-serif; background: #f9f6ff; padding: 20px; }
+    h1 { text-align: center; color: #6a1b9a; }
+    .chart { margin: 20px auto; max-width: 800px; }
+    h3 { margin-top: 30px; color: #333; }
   </style>
 </head>
 <body>
-  <h1>📊 Dashboard สรุปผลการประเมินครู</h1>
-
-  <!-- ตารางสรุปครูวิชา -->
-  <h2>📘 ค่าเฉลี่ยครูวิชา</h2>
-  <table id="subject_table">
-    <thead>
-      <tr><th>ครู+วิชา</th><th>ค่าเฉลี่ย</th></tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-  <div id="subject_chart" style="height:400px;"></div>
-
-  <!-- ตารางสรุปครูประจำชั้น -->
-  <h2>🏫 ค่าเฉลี่ยครูประจำชั้น</h2>
-  <table id="homeroom_table">
-    <thead>
-      <tr><th>ครูประจำชั้น</th><th>ค่าเฉลี่ย</th></tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-  <div id="homeroom_chart" style="height:400px;"></div>
-
-  <!-- ความคิดเห็น -->
-  <h2>💬 ข้อเสนอแนะ</h2>
+  <h1>📊 Dashboard การประเมินครู</h1>
+  <div id="subject_chart" class="chart"></div>
+  <div id="homeroom_chart" class="chart"></div>
   <div id="comments"></div>
 
-  <script>
-  // ✅ ใส่ URL ของ Web App ที่ deploy จาก Apps Script
-  const API_URL = "https://script.google.com/macros/s/AKfycbx7zoW9S4ulivPPwSLOWLKLHuyE16IkWkGAsrFrBktgof0ta5Q9jDW1Fb3YOJjo4y4i/exec";
+<script>
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx7zoW9S4ulivPPwSLOWLKLHuyE16IkWkGAsrFrBktgof0ta5Q9jDW1Fb3YOJjo4y4i/exec";
 
-  fetch(API_URL)
-  .then(res => res.json())
-  .then(data => {
-    // ================== ตารางครูวิชา ==================
-    let subjectTableBody = document.querySelector("#subject_table tbody");
-    data.subjects.forEach(r => {
-      subjectTableBody.innerHTML += `<tr><td>${r.teacher_subject}</td><td>${r.avg}</td></tr>`;
-    });
+fetch(WEB_APP_URL)
+.then(res => res.json())
+.then(data => {
+  // ครูวิชา
+  let subjectData = [['ครู+วิชา', 'ค่าเฉลี่ย']];
+  data.subjects.forEach(r => subjectData.push([r.teacher_subject, parseFloat(r.avg)]));
 
-    // ================== ตารางครูประจำชั้น ==================
-    let homeroomTableBody = document.querySelector("#homeroom_table tbody");
-    data.homerooms.forEach(r => {
-      homeroomTableBody.innerHTML += `<tr><td>${r.homeroom}</td><td>${r.avg}</td></tr>`;
-    });
+  // ครูประจำชั้น
+  let homeroomData = [['ครูประจำชั้น', 'ค่าเฉลี่ย']];
+  data.homerooms.forEach(r => homeroomData.push([r.homeroom, parseFloat(r.avg)]));
 
-    // ================== กราฟครูวิชา ==================
-    let subjectData = [['ครู+วิชา', 'ค่าเฉลี่ย']];
-    data.subjects.forEach(r => subjectData.push([r.teacher_subject, parseFloat(r.avg)]));
-    google.charts.load('current', {packages:['corechart']});
-    google.charts.setOnLoadCallback(() => {
-      var dt1 = google.visualization.arrayToDataTable(subjectData);
-      new google.visualization.ColumnChart(document.getElementById('subject_chart'))
-        .draw(dt1, {title: 'ค่าเฉลี่ยครูวิชา', legend:{position:'none'}});
-    });
-
-    // ================== กราฟครูประจำชั้น ==================
-    let homeroomData = [['ครูประจำชั้น', 'ค่าเฉลี่ย']];
-    data.homerooms.forEach(r => homeroomData.push([r.homeroom, parseFloat(r.avg)]));
-    google.charts.setOnLoadCallback(() => {
-      var dt2 = google.visualization.arrayToDataTable(homeroomData);
-      new google.visualization.ColumnChart(document.getElementById('homeroom_chart'))
-        .draw(dt2, {title: 'ค่าเฉลี่ยครูประจำชั้น', legend:{position:'none'}});
-    });
-
-    // ================== ข้อเสนอแนะ ==================
-    let commentsHTML = "";
-    data.subjects.forEach(r => {
-      if (r.comments.length) {
-        commentsHTML += `<h3>${r.teacher_subject}</h3><ul>`;
-        r.comments.forEach(c => commentsHTML += `<li>${c}</li>`);
-        commentsHTML += "</ul>";
-      }
-    });
-    document.getElementById("comments").innerHTML = commentsHTML || "— ไม่มีข้อเสนอแนะ —";
+  // โหลด Google Chart
+  google.charts.load('current', {packages:['corechart']});
+  google.charts.setOnLoadCallback(() => {
+    var dt1 = google.visualization.arrayToDataTable(subjectData);
+    new google.visualization.ColumnChart(document.getElementById('subject_chart'))
+      .draw(dt1, {title: 'ค่าเฉลี่ยครูวิชา'});
+    
+    var dt2 = google.visualization.arrayToDataTable(homeroomData);
+    new google.visualization.ColumnChart(document.getElementById('homeroom_chart'))
+      .draw(dt2, {title: 'ค่าเฉลี่ยครูประจำชั้น'});
   });
-  </script>
+
+  // แสดงคอมเมนต์
+  let commentsHTML = "<h2>💬 ข้อเสนอแนะ</h2>";
+  data.subjects.forEach(r => {
+    if (r.comments.length) {
+      commentsHTML += `<h3>${r.teacher_subject}</h3><ul>`;
+      r.comments.forEach(c => commentsHTML += `<li>${c}</li>`);
+      commentsHTML += "</ul>";
+    }
+  });
+  document.getElementById("comments").innerHTML = commentsHTML;
+});
+</script>
 </body>
 </html>
