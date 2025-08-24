@@ -1,81 +1,91 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8">
-  <title>สรุปผลการประเมินครู</title>
+  <meta charset="UTF-8" />
+  <title>Dashboard - สรุปผลการประเมิน</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    body { font-family: "Prompt", sans-serif; background: #fdfdfd; color: #333; padding: 20px; }
-    h1, h2 { text-align: center; color: #4b0082; }
-    table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-    table, th, td { border: 1px solid #ccc; }
-    th, td { padding: 10px; text-align: center; }
-    th { background: #f0e6ff; }
-    tr:nth-child(even) { background: #fafafa; }
-    .comments { text-align: left; font-size: 0.9em; color: #555; }
+    :root{ --pink:#d81b60; --card:#fff; --bg:#fafafa; --border:#eee; }
+    *{box-sizing:border-box}
+    body{font-family:"Prompt",system-ui; background:var(--bg); margin:0; padding:20px}
+    h1{text-align:center; color:var(--pink); margin:0 0 18px}
+    .box{max-width:1100px; margin:0 auto 20px; background:var(--card); padding:18px; border-radius:18px; box-shadow:0 6px 16px rgba(0,0,0,.06)}
+    h2{margin:6px 0 10px; color:#ad1457}
+    table{width:100%; border-collapse:collapse}
+    th,td{border:1px solid var(--border); padding:8px 10px; text-align:center}
+    th{background:#fce4ec}
+    canvas{margin-top:14px}
   </style>
 </head>
 <body>
-  <h1>📊 สรุปผลการประเมินครู</h1>
+  <h1>📊 Dashboard สรุปผลการประเมิน</h1>
 
-  <h2>ครูวิชา</h2>
-  <table id="subjectsTable">
-    <thead>
-      <tr>
-        <th>ครู (วิชา)</th>
-        <th>ค่าเฉลี่ย</th>
-        <th>ข้อเสนอแนะ</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+  <div class="box">
+    <h2>สรุปค่าเฉลี่ยรายวิชา (ตามครูผู้สอน)</h2>
+    <table id="tblSubject"><tr><th>ครู (วิชา)</th><th>ค่าเฉลี่ย</th></tr></table>
+    <canvas id="chartSubject" height="120"></canvas>
+  </div>
 
-  <h2>ครูประจำชั้น</h2>
-  <table id="homeroomsTable">
-    <thead>
-      <tr>
-        <th>ห้อง</th>
-        <th>ค่าเฉลี่ย</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+  <div class="box">
+    <h2>สรุปค่าเฉลี่ยครูประจำชั้น</h2>
+    <table id="tblHomeroom"><tr><th>ครูประจำชั้น</th><th>ค่าเฉลี่ย</th></tr></table>
+    <canvas id="chartHomeroom" height="120"></canvas>
+  </div>
+
+  <div class="box">
+    <h2>สรุปค่าเฉลี่ยรายชั้น</h2>
+    <table id="tblGrade"><tr><th>ชั้น</th><th>ค่าเฉลี่ย</th></tr></table>
+    <canvas id="chartGrade" height="120"></canvas>
+  </div>
 
   <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbx7zoW9S4ulivPPwSLOWLKLHuyE16IkWkGAsrFrBktgof0ta5Q9jDW1Fb3YOJjo4y4i/exec";
+    // 👉 ใช้ URL Web App เดียวกับ index.html แต่เพิ่ม ?mode=summary
+    const SUMMARY_URL = "https://script.google.com/macros/s/AKfycbyzXJVR5xaNmJLBURxrMin4A9CmTBtcEIpHY1qK6uayTVEc8Ki3rIRqox5ucVlUNjzy/exec?mode=summary";
 
-    async function loadSummary() {
-      try {
-        const res = await fetch(API_URL);
-        const data = await res.json();
+    async function loadSummary(){
+      const res = await fetch(SUMMARY_URL);
+      const data = await res.json();
 
-        // --- ครูวิชา ---
-        const subjBody = document.querySelector("#subjectsTable tbody");
-        data.subjects.forEach(row => {
-          let tr = document.createElement("tr");
-          tr.innerHTML = `
-            <td>${row.teacher_subject}</td>
-            <td>${row.avg}</td>
-            <td class="comments">${row.comments.join("<br>")}</td>
-          `;
-          subjBody.appendChild(tr);
-        });
+      // ตาราง
+      const tSub = document.getElementById("tblSubject");
+      data.subjects.forEach(s=>{
+        tSub.insertAdjacentHTML("beforeend", `<tr><td>${s.teacher_subject}</td><td>${s.avg}</td></tr>`);
+      });
+      const tHome = document.getElementById("tblHomeroom");
+      data.homerooms.forEach(h=>{
+        tHome.insertAdjacentHTML("beforeend", `<tr><td>${h.homeroom}</td><td>${h.avg}</td></tr>`);
+      });
+      const tGrade = document.getElementById("tblGrade");
+      data.grades.forEach(g=>{
+        tGrade.insertAdjacentHTML("beforeend", `<tr><td>${g.grade}</td><td>${g.avg}</td></tr>`);
+      });
 
-        // --- ครูประจำชั้น ---
-        const homeBody = document.querySelector("#homeroomsTable tbody");
-        data.homerooms.forEach(row => {
-          let tr = document.createElement("tr");
-          tr.innerHTML = `
-            <td>${row.homeroom}</td>
-            <td>${row.avg}</td>
-          `;
-          homeBody.appendChild(tr);
-        });
+      // กราฟ
+      new Chart(document.getElementById("chartSubject"),{
+        type:"bar",
+        data:{
+          labels:data.subjects.map(s=>s.teacher_subject),
+          datasets:[{label:"ค่าเฉลี่ยรายวิชา", data:data.subjects.map(s=>s.avg)}]
+        }
+      });
 
-      } catch (err) {
-        console.error("โหลดข้อมูลไม่สำเร็จ:", err);
-      }
+      new Chart(document.getElementById("chartHomeroom"),{
+        type:"bar",
+        data:{
+          labels:data.homerooms.map(h=>h.homeroom),
+          datasets:[{label:"ค่าเฉลี่ยครูประจำชั้น", data:data.homerooms.map(h=>h.avg)}]
+        }
+      });
+
+      new Chart(document.getElementById("chartGrade"),{
+        type:"line",
+        data:{
+          labels:data.grades.map(g=>g.grade),
+          datasets:[{label:"ค่าเฉลี่ยรายชั้น", data:data.grades.map(g=>g.avg), fill:false}]
+        }
+      });
     }
-
     loadSummary();
   </script>
 </body>
