@@ -2,58 +2,81 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8">
-  <title>Dashboard การประเมิน</title>
-  <script src="https://www.gstatic.com/charts/loader.js"></script>
+  <title>สรุปผลการประเมินครู</title>
   <style>
-    body { font-family: "Prompt", sans-serif; background: #f9f6ff; padding: 20px; }
-    h1 { text-align: center; color: #6a1b9a; }
-    .chart { margin: 20px auto; max-width: 800px; }
-    h3 { margin-top: 30px; color: #333; }
+    body { font-family: "Prompt", sans-serif; background: #fdfdfd; color: #333; padding: 20px; }
+    h1, h2 { text-align: center; color: #4b0082; }
+    table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+    table, th, td { border: 1px solid #ccc; }
+    th, td { padding: 10px; text-align: center; }
+    th { background: #f0e6ff; }
+    tr:nth-child(even) { background: #fafafa; }
+    .comments { text-align: left; font-size: 0.9em; color: #555; }
   </style>
 </head>
 <body>
-  <h1>📊 Dashboard การประเมินครู</h1>
-  <div id="subject_chart" class="chart"></div>
-  <div id="homeroom_chart" class="chart"></div>
-  <div id="comments"></div>
+  <h1>📊 สรุปผลการประเมินครู</h1>
 
-<script>
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx7zoW9S4ulivPPwSLOWLKLHuyE16IkWkGAsrFrBktgof0ta5Q9jDW1Fb3YOJjo4y4i/exec";
+  <h2>ครูวิชา</h2>
+  <table id="subjectsTable">
+    <thead>
+      <tr>
+        <th>ครู (วิชา)</th>
+        <th>ค่าเฉลี่ย</th>
+        <th>ข้อเสนอแนะ</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 
-fetch(WEB_APP_URL)
-.then(res => res.json())
-.then(data => {
-  // ครูวิชา
-  let subjectData = [['ครู+วิชา', 'ค่าเฉลี่ย']];
-  data.subjects.forEach(r => subjectData.push([r.teacher_subject, parseFloat(r.avg)]));
+  <h2>ครูประจำชั้น</h2>
+  <table id="homeroomsTable">
+    <thead>
+      <tr>
+        <th>ห้อง</th>
+        <th>ค่าเฉลี่ย</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 
-  // ครูประจำชั้น
-  let homeroomData = [['ครูประจำชั้น', 'ค่าเฉลี่ย']];
-  data.homerooms.forEach(r => homeroomData.push([r.homeroom, parseFloat(r.avg)]));
+  <script>
+    const API_URL = "https://script.google.com/macros/s/AKfycbx7zoW9S4ulivPPwSLOWLKLHuyE16IkWkGAsrFrBktgof0ta5Q9jDW1Fb3YOJjo4y4i/exec";
 
-  // โหลด Google Chart
-  google.charts.load('current', {packages:['corechart']});
-  google.charts.setOnLoadCallback(() => {
-    var dt1 = google.visualization.arrayToDataTable(subjectData);
-    new google.visualization.ColumnChart(document.getElementById('subject_chart'))
-      .draw(dt1, {title: 'ค่าเฉลี่ยครูวิชา'});
-    
-    var dt2 = google.visualization.arrayToDataTable(homeroomData);
-    new google.visualization.ColumnChart(document.getElementById('homeroom_chart'))
-      .draw(dt2, {title: 'ค่าเฉลี่ยครูประจำชั้น'});
-  });
+    async function loadSummary() {
+      try {
+        const res = await fetch(API_URL);
+        const data = await res.json();
 
-  // แสดงคอมเมนต์
-  let commentsHTML = "<h2>💬 ข้อเสนอแนะ</h2>";
-  data.subjects.forEach(r => {
-    if (r.comments.length) {
-      commentsHTML += `<h3>${r.teacher_subject}</h3><ul>`;
-      r.comments.forEach(c => commentsHTML += `<li>${c}</li>`);
-      commentsHTML += "</ul>";
+        // --- ครูวิชา ---
+        const subjBody = document.querySelector("#subjectsTable tbody");
+        data.subjects.forEach(row => {
+          let tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${row.teacher_subject}</td>
+            <td>${row.avg}</td>
+            <td class="comments">${row.comments.join("<br>")}</td>
+          `;
+          subjBody.appendChild(tr);
+        });
+
+        // --- ครูประจำชั้น ---
+        const homeBody = document.querySelector("#homeroomsTable tbody");
+        data.homerooms.forEach(row => {
+          let tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${row.homeroom}</td>
+            <td>${row.avg}</td>
+          `;
+          homeBody.appendChild(tr);
+        });
+
+      } catch (err) {
+        console.error("โหลดข้อมูลไม่สำเร็จ:", err);
+      }
     }
-  });
-  document.getElementById("comments").innerHTML = commentsHTML;
-});
-</script>
+
+    loadSummary();
+  </script>
 </body>
 </html>
